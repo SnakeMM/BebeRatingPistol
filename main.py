@@ -2,7 +2,7 @@ import requests
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import pytorch_lightning as pl
+#import pytorch_lightning as pl
 
 from PIL import Image
 from fastapi import FastAPI
@@ -11,6 +11,7 @@ from transformers import CLIPProcessor, CLIPModel
 # 图片艺术评分模型
 # https://github.com/christophschuhmann/improved-aesthetic-predictor
 # 不要改动模型结构代码，除非自己重新训练
+"""
 class MLP(pl.LightningModule):
     def __init__(self, input_size, xcol='emb', ycol='avg_rating'):
         super().__init__()
@@ -54,6 +55,7 @@ class MLP(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
         return optimizer
+"""
     
 # 推理机器环境
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -64,12 +66,14 @@ clipModel = CLIPModel.from_pretrained(clip_model_name).to(device)
 clipProcessor = CLIPProcessor.from_pretrained(clip_model_name)
 
 # 加载评分模型
+"""
 rating_model_name = "sac+logos+ava1-l14-linearMSE.pth"
 mlpModel = MLP(768)
 s = torch.load(rating_model_name, map_location=device)
 mlpModel.load_state_dict(s)
 mlpModel.to(device)
 mlpModel.eval()
+"""
     
 def normalized(a, axis=-1, order=2):
     import numpy as np  # pylint: disable=import-outside-toplevel
@@ -106,7 +110,10 @@ def getMaxProbTag(image, input_tags):
     return results
 
 def getAnalysis(img_url: str):
+    result = {}
     image = getImageByUrl(img_url)
+    
+    """
     image_features = getImageFeaturesByCLIP(image)
     with torch.no_grad():
         if device == 'cuda':
@@ -117,12 +124,11 @@ def getAnalysis(img_url: str):
             im_emb = torch.from_numpy(im_emb_arr).to(device).type(torch.FloatTensor)
 
         prediction = mlpModel(im_emb)
-    
-    result = {}
 
     score = prediction.item()
     print(score)
     result["aesthetic_score"] = score
+    """
 
     tags_child = [
         "a photo with no child at all",
