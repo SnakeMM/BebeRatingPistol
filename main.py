@@ -84,7 +84,7 @@ def getImageFeaturesByCLIP(image):
     inputs = clipProcessor(images=image, return_tensors="pt").to(device)
     return clipModel.get_image_features(**inputs)
 
-def getAestheticScore(img_url: str):
+def getAnalysis(img_url: str):
     image = getImageByUrl(img_url)
     image_features = getImageFeaturesByCLIP(image)
     with torch.no_grad():
@@ -100,5 +100,24 @@ def getAestheticScore(img_url: str):
     score = prediction.item()
     print(score)
 
-test_url = 'https://cdn.bebememo.us/alijp/pictures/original/202212/537617569/4f5e40f19663442ab6e2eaffb2fcbf4a.jpg!large'
-getAestheticScore(test_url)
+    input_tags = ["no child","only one child","two children","many children"]
+    threshold = 0.01
+
+    inputs = clipProcessor(text=input_tags, images=image, return_tensors="pt", padding=True).to(device)
+    outputs = clipModel(**inputs)
+    
+    logits_per_image = outputs.logits_per_image
+    probs = logits_per_image.softmax(dim=1).tolist()[0]
+
+    results = []
+    for index,tag in enumerate(input_tags):
+        if probs[index] >= threshold:
+            results.append({
+                "name": tag,
+                "confidence": probs[index]
+            })
+    results = sorted(results, key=lambda k: k["confidence"], reverse=True)
+    print(results)
+
+test_url = 'https://cdn.bebememo.us/alijp/pictures/original/202404/537617569/eed62b3e4654423d99c6044b84de527f.jpg!large'
+getAnalysis(test_url)
