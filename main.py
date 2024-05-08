@@ -6,6 +6,7 @@ import torch.nn.functional as F
 
 from PIL import Image
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from transformers import CLIPProcessor, CLIPModel
 
 # 图片艺术评分模型
@@ -112,7 +113,7 @@ def getMaxProbTag(image, input_tags):
 def getAnalysis(img_url: str):
     result = {}
     image = getImageByUrl(img_url)
-    
+
     """
     image_features = getImageFeaturesByCLIP(image)
     with torch.no_grad():
@@ -161,6 +162,14 @@ style = '!large'
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def root():

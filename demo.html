@@ -10,8 +10,7 @@
     setup() {
       const message = ref('Hello vue!')
 
-      axios.defaults.headers.common['Authorization'] = 'us_537062423_AZoBbN9IKFMGMETGK34BBtQv1ioRhYi4XSeErEVim7Q'
-      axios.get('https://beta.bebememo.us/tests?baby_id=537465777&total_days=1')
+      axios.get('http://192.168.2.217:8000/rate/batch?baby_id=537617427&total_days=628')
         .then(function (response) {
             console.log(response.data);
         })
