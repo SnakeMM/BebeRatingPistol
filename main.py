@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 
 from PIL import Image
+from fastapi import FastAPI
 from transformers import CLIPProcessor, CLIPModel
 
 # 图片艺术评分模型
@@ -84,23 +85,7 @@ def getImageFeaturesByCLIP(image):
     inputs = clipProcessor(images=image, return_tensors="pt").to(device)
     return clipModel.get_image_features(**inputs)
 
-def getAnalysis(img_url: str):
-    image = getImageByUrl(img_url)
-    image_features = getImageFeaturesByCLIP(image)
-    with torch.no_grad():
-        if device == 'cuda':
-            im_emb_arr = normalized(image_features.detach().cpu().numpy())
-            im_emb = torch.from_numpy(im_emb_arr).to(device).type(torch.cuda.FloatTensor)
-        else:
-            im_emb_arr = normalized(image_features.detach().numpy())
-            im_emb = torch.from_numpy(im_emb_arr).to(device).type(torch.FloatTensor)
-
-        prediction = mlpModel(im_emb)
-
-    score = prediction.item()
-    print(score)
-
-    input_tags = ["no child","only one child","two children","many children"]
+def getMaxProbTag(image, input_tags):
     threshold = 0.01
 
     inputs = clipProcessor(text=input_tags, images=image, return_tensors="pt", padding=True).to(device)
@@ -117,7 +102,82 @@ def getAnalysis(img_url: str):
                 "confidence": probs[index]
             })
     results = sorted(results, key=lambda k: k["confidence"], reverse=True)
-    print(results)
+    #print(results)
+    return results
 
-test_url = 'https://cdn.bebememo.us/alijp/pictures/original/202404/537617569/eed62b3e4654423d99c6044b84de527f.jpg!large'
-getAnalysis(test_url)
+def getAnalysis(img_url: str):
+    image = getImageByUrl(img_url)
+    image_features = getImageFeaturesByCLIP(image)
+    with torch.no_grad():
+        if device == 'cuda':
+            im_emb_arr = normalized(image_features.detach().cpu().numpy())
+            im_emb = torch.from_numpy(im_emb_arr).to(device).type(torch.cuda.FloatTensor)
+        else:
+            im_emb_arr = normalized(image_features.detach().numpy())
+            im_emb = torch.from_numpy(im_emb_arr).to(device).type(torch.FloatTensor)
+
+        prediction = mlpModel(im_emb)
+    
+    result = {}
+
+    score = prediction.item()
+    print(score)
+    result["aesthetic_score"] = score
+
+    tags_child = [
+        "a photo with no child at all",
+        "a photo with only one child",
+        "a photo with two children",
+        "a photo with three children",
+        "a photo with many children"
+    ]
+    tags_face = [
+        "a photo with front face",
+        "a photo with side face",
+        "a photo with no face"
+    ]
+    tags_expression = [
+        "a photo with smiling face",
+        "a photo with crying face",
+        "a photo with calming face"
+    ]
+
+    result["tags_child"] = getMaxProbTag(image, tags_child)
+    result["tags_face"] = getMaxProbTag(image, tags_face)
+    result["tags_expression"] = getMaxProbTag(image, tags_expression)
+
+    return result
+
+base_url = 'https://cdn.bebememo.us/'
+test_url = 'alijp/pictures/original/202312/537617569/0a5f4d5217864be5a109ec8f8d4b3fe3.jpg'
+style = '!large'
+#getAnalysis(base_url + test_url + style)
+
+
+app = FastAPI()
+
+@app.get("/")
+async def root():
+    return "BebeRatingPistol Api"
+
+@app.get("/rate/batch")
+async def getTagsClip(
+    baby_id: str, 
+    total_days: str
+):
+    url = f"https://beta.bebememo.us/tests?baby_id={baby_id}&total_days={total_days}"
+    headers = {
+        "Authorization": "us_537062423_AZoBbN9IKFMGMETGK34BBtQv1ioRhYi4XSeErEVim7Q"
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        list = data["list"]
+        results = []
+        for item in list:
+            result = {}
+            result["url"] = item
+            result["detail"] = getAnalysis(item)
+            results.append(result)
+        
+        return results
