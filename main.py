@@ -156,21 +156,21 @@ def getAnalysis(img_url: str):
 
     result["tags_child"] = getMaxProbTag(image, tags_child)
     for item in result["tags_child"]:
-        if item.name == "only one child":
-            score_child = item.confidence
+        if item["name"] == "only one child":
+            score_child = item["confidence"]
             score_final += score_child
 
     result["tags_face"] = getMaxProbTag(image, tags_face)
     for item in result["tags_face"]:
-        if item.name == "front face":
-            score_face = item.confidence
+        if item["name"] == "front face":
+            score_face = item["confidence"]
             if score_child > 0.6:
                 score_final += score_face
 
     result["tags_expression"] = getMaxProbTag(image, tags_expression)
     for item in result["tags_expression"]:
-        if item.name == "smiling face":
-            score_expression = item.confidence
+        if item["name"] == "smiling face":
+            score_expression = item["confidence"]
             if score_child > 0.6 and score_face > 0.6 :
                 score_final += score_expression
 
