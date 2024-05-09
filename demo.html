@@ -29,11 +29,11 @@
       const getDetail = (detail) => {
         let str = ''
         let tags_child = detail.tags_child[0];
-        str += tags_child.name.replace('a photo with ','') + '：' + tags_child.confidence.toFixed(2) + '<br>';
+        str += tags_child.name + '：' + tags_child.confidence + '<br>';
         let tags_face = detail.tags_face[0];
-        str += tags_face.name.replace('a photo with ','') + '：' + tags_face.confidence.toFixed(2) + '<br>';
+        str += tags_face.name + '：' + tags_face.confidence + '<br>';
         let tags_expression = detail.tags_expression[0];
-        str += tags_expression.name.replace('a photo with ','') + '：' + tags_expression.confidence.toFixed(2) + '<br>';
+        str += tags_expression.name + '：' + tags_expression.confidence + '<br>';
         console.log(detail);
         return str
       }
