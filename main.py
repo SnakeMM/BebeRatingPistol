@@ -103,8 +103,8 @@ def getMaxProbTag(image, input_tags):
     for index,tag in enumerate(input_tags):
         if probs[index] >= threshold:
             results.append({
-                "name": tag,
-                "confidence": probs[index]
+                "name": tag.replace('a photo with ',''),
+                "confidence": round(probs[index],2)
             })
     results = sorted(results, key=lambda k: k["confidence"], reverse=True)
     #print(results)

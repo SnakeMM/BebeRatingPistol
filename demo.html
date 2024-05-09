@@ -1,26 +1,109 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-<div id="app">{{ message }}</div>
+<div id="app">
+  <div class="image-grid">
+    <div v-for="image in images" :key="image.id" class="image-card">
+      <div class="image-wrapper">
+        <img :src="image.url" alt="Image" class="image">
+        <div class="content-overlay">
+          <div class="content" v-html="getDetail(image.detail)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <script>
   const { createApp, ref } = Vue
 
   createApp({
     setup() {
-      const message = ref('Hello vue!')
+      const params = new URLSearchParams(window.location.search);
+      const getParameter = (name) => params.get(name);
+      const baby_id = getParameter('baby_id');
+      const total_days = getParameter('total_days');
 
-      axios.get('http://192.168.2.217:8000/rate/batch?baby_id=537617427&total_days=628')
+      const images = ref([]);
+      const getDetail = (detail) => {
+        let str = ''
+        let tags_child = detail.tags_child[0];
+        str += tags_child.name.replace('a photo with ','') + '：' + tags_child.confidence.toFixed(2) + '<br>';
+        let tags_face = detail.tags_face[0];
+        str += tags_face.name.replace('a photo with ','') + '：' + tags_face.confidence.toFixed(2) + '<br>';
+        let tags_expression = detail.tags_expression[0];
+        str += tags_expression.name.replace('a photo with ','') + '：' + tags_expression.confidence.toFixed(2) + '<br>';
+        console.log(detail);
+        return str
+      }
+
+      axios.get(`http://192.168.2.217:8000/rate/batch?baby_id=${baby_id}&total_days=${total_days}`)
         .then(function (response) {
-            console.log(response.data);
+          images.value = response.data;
         })
         .catch(function (error) {
-            console.log(error);
+          console.log(error);
         });
         
       return {
-        message
+        images,
+        getDetail
       }
     }
   }).mount('#app')
 </script>
+
+<style>
+  .image-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    .image-card {
+      flex-basis: 20%;
+      margin: 0px;
+      padding: 10px;
+      background-color: #f1f1f1;
+      box-sizing: border-box;
+    }
+
+    .image-wrapper {
+      position: relative;
+      padding-top: 100%; /* 控制图片高度为宽度的百分比，实现正方形区域 */
+    }
+
+    .image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* 图片填充满容器 */
+    }
+
+    .image-wrapper:hover .content-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.7);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      color: #fff;
+      opacity: 1;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .content-overlay {
+      display: none;
+    }
+
+    .content {
+      text-align: center;
+      padding: 10px;
+    }
+</style>
