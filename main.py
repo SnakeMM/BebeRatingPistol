@@ -217,5 +217,6 @@ async def getTagsClip(
             result["url"] = item
             result["detail"] = getAnalysis(item)
             results.append(result)
-        
+
+        results = sorted(results, key=lambda k: k["detail"]["score_final"], reverse=True)
         return results
