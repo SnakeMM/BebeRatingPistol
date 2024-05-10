@@ -1,5 +1,6 @@
 import requests
 import torch
+import time
 
 from PIL import Image
 from fastapi import FastAPI
@@ -18,22 +19,24 @@ def getImageByUrl(img_url: str):
     return Image.open(requests.get(img_url, stream=True).raw).convert('L')
 
 def getMaxProbTag(image, input_tags):
-    threshold = 0.01
+    threshold = 0
 
     inputs = clipProcessor(text=input_tags, images=image, return_tensors="pt", padding=True).to(device)
     outputs = clipModel(**inputs)
     
     logits_per_image = outputs.logits_per_image
+    print(logits_per_image)
     probs = logits_per_image.softmax(dim=1).tolist()[0]
+    print(probs)
 
     results = []
     for index,tag in enumerate(input_tags):
         if probs[index] >= threshold:
             results.append({
                 "name": tag.replace('a photo with ',''),
-                "confidence": round(probs[index],2)
+                "confidence": probs[index]
             })
-    results = sorted(results, key=lambda k: k["confidence"], reverse=True)
+    #results = sorted(results, key=lambda k: k["confidence"], reverse=True)
     #print(results)
     return results
 
@@ -41,54 +44,68 @@ def getAnalysis(img_url: str):
     result = {}
     image = getImageByUrl(img_url)
 
-    tags_child = [
+    tags = [
         "a photo with no child at all",
         "a photo with only one child",
         "a photo with two children",
         "a photo with three children",
-        "a photo with many children"
-    ]
-    tags_face = [
+        "a photo with many children",
         "a photo with front face",
         "a photo with side face",
-        "a photo with no face"
-    ]
-    tags_expression = [
+        "a photo with no face",
         "a photo with smiling face",
         "a photo with crying face",
         "a photo with calming face"
-    ]
+    ] 
 
-    score_child = 0
-    score_face = 0
-    score_expression = 0
+    start_time = time.time()
+
+    sum_child = 0
+    sum_face = 0
+    sum_expression = 0
+    outputs = getMaxProbTag(image, tags)
+
+    for i, item in enumerate(outputs):
+        if i < 5:
+            sum_child += item["confidence"]
+        elif i < 8:
+            sum_face += item["confidence"]
+        else:
+            sum_expression += item["confidence"]
+
+    for i, item in enumerate(outputs):
+        if i < 5:
+            item["confidence"] /= sum_child
+        elif i < 8:
+            item["confidence"] /= sum_face
+        else:
+            item["confidence"] /= sum_expression
+    
     score_final = 0
-
-    result["tags_child"] = getMaxProbTag(image, tags_child)
-    for item in result["tags_child"]:
+    for i, item in enumerate(outputs):
         if item["name"] == "only one child":
             score_child = item["confidence"]
             score_final += score_child
-
-    result["tags_face"] = getMaxProbTag(image, tags_face)
-    for item in result["tags_face"]:
         if item["name"] == "front face":
             score_face = item["confidence"]
             if score_child > 0.6:
                 score_final += score_face
-
-    result["tags_expression"] = getMaxProbTag(image, tags_expression)
-    for item in result["tags_expression"]:
         if item["name"] == "smiling face":
             score_expression = item["confidence"]
             if score_child > 0.6 and score_face > 0.6 :
                 score_final += score_expression
 
+    end_time = time.time()
+    run_time = end_time - start_time
+    print(f"运行时间: {run_time} 秒")
+
+    result["tags"] = outputs
     result["score_final"] = score_final
+    #print(result)
 
     return result
 
-#getAnalysis('https://cdn.bebememo.us/alijp/pictures/original/202405/537617569/09134e0efd0f400da4d43559ee0b9e03.jpg!large')
+getAnalysis('https://cdn.bebememo.us/alijp/pictures/original/202405/537617569/09134e0efd0f400da4d43559ee0b9e03.jpg!large')
 
 app = FastAPI()
 
