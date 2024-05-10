@@ -25,9 +25,7 @@ def getMaxProbTag(image, input_tags):
     outputs = clipModel(**inputs)
     
     logits_per_image = outputs.logits_per_image
-    print(logits_per_image)
     probs = logits_per_image.softmax(dim=1).tolist()[0]
-    print(probs)
 
     results = []
     for index,tag in enumerate(input_tags):
@@ -41,8 +39,12 @@ def getMaxProbTag(image, input_tags):
     return results
 
 def getAnalysis(img_url: str):
-    result = {}
+    t1 = time.time()
+
     image = getImageByUrl(img_url)
+
+    t2 = time.time()
+    print(f"下载时间: {round(t2 - t1, 2)} 秒")
 
     tags = [
         "a photo with no child at all",
@@ -56,15 +58,16 @@ def getAnalysis(img_url: str):
         "a photo with smiling face",
         "a photo with crying face",
         "a photo with calming face"
-    ] 
+    ]
 
-    start_time = time.time()
+    outputs = getMaxProbTag(image, tags)
+
+    t3 = time.time()
+    print(f"推理时间: {round(t3 - t2, 2)} 秒")
 
     sum_child = 0
     sum_face = 0
     sum_expression = 0
-    outputs = getMaxProbTag(image, tags)
-
     for i, item in enumerate(outputs):
         if i < 5:
             sum_child += item["confidence"]
@@ -75,11 +78,11 @@ def getAnalysis(img_url: str):
 
     for i, item in enumerate(outputs):
         if i < 5:
-            item["confidence"] /= sum_child
+            item["confidence"] = round(item["confidence"] / sum_child, 2)
         elif i < 8:
-            item["confidence"] /= sum_face
+            item["confidence"] = round(item["confidence"] / sum_face, 2)
         else:
-            item["confidence"] /= sum_expression
+            item["confidence"] = round(item["confidence"] / sum_expression, 2)
     
     score_final = 0
     for i, item in enumerate(outputs):
@@ -95,13 +98,13 @@ def getAnalysis(img_url: str):
             if score_child > 0.6 and score_face > 0.6 :
                 score_final += score_expression
 
-    end_time = time.time()
-    run_time = end_time - start_time
-    print(f"运行时间: {run_time} 秒")
-
+    result = {}
     result["tags"] = outputs
     result["score_final"] = score_final
     #print(result)
+
+    t3 = time.time()
+    print(f"其他时间: {round(t3 - t2, 2)} 秒")
 
     return result
 
