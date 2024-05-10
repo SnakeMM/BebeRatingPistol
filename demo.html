@@ -27,7 +27,7 @@
 
       const images = ref([]);
       const getDetail = (detail) => {
-        let str = ''
+        let str = 'SCORE：' + detail.score_final.toFixed(2) + '<br>';
         let tags_child = detail.tags_child[0];
         str += tags_child.name + '：' + tags_child.confidence + '<br>';
         let tags_face = detail.tags_face[0];

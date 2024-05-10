@@ -84,7 +84,7 @@ def normalized(a, axis=-1, order=2):
     return a / np.expand_dims(l2, axis)
 
 def getImageByUrl(img_url: str):
-    return Image.open(requests.get(img_url, stream=True).raw).convert('RGB')
+    return Image.open(requests.get(img_url, stream=True).raw).convert('L')
 
 def getImageFeaturesByCLIP(image):
     inputs = clipProcessor(images=image, return_tensors="pt").to(device)
@@ -107,7 +107,7 @@ def getMaxProbTag(image, input_tags):
                 "confidence": round(probs[index],2)
             })
     results = sorted(results, key=lambda k: k["confidence"], reverse=True)
-    #print(results)
+    print(results)
     return results
 
 def getAnalysis(img_url: str):
@@ -179,7 +179,7 @@ def getAnalysis(img_url: str):
     return result
 
 base_url = 'https://cdn.bebememo.us/'
-test_url = 'alijp/pictures/original/202312/537617569/0a5f4d5217864be5a109ec8f8d4b3fe3.jpg'
+test_url = 'alijp/pictures/original/202405/537617569/09134e0efd0f400da4d43559ee0b9e03.jpg'
 style = '!large'
 #getAnalysis(base_url + test_url + style)
 
