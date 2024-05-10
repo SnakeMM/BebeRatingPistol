@@ -103,8 +103,8 @@ def getAnalysis(img_url: str):
     result["score_final"] = score_final
     #print(result)
 
-    t3 = time.time()
-    print(f"其他时间: {round(t3 - t2, 2)} 秒")
+    t4 = time.time()
+    print(f"其他时间: {round(t4 - t3, 2)} 秒")
 
     return result
 
