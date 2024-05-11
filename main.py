@@ -52,7 +52,7 @@ def getAnalysis(img_url: str):
         "a photo with two children",
         "a photo with three children",
         "a photo with many children",
-        "a photo with front face",
+        "a photo with full front face",
         "a photo with side face",
         "a photo with no face",
         "a photo with smiling face",
@@ -89,7 +89,7 @@ def getAnalysis(img_url: str):
         if item["name"] == "only one child":
             score_child = item["confidence"]
             score_final += score_child
-        if item["name"] == "front face":
+        if item["name"] == "full front face":
             score_face = item["confidence"]
             if score_child > 0.6:
                 score_final += score_face
@@ -101,11 +101,11 @@ def getAnalysis(img_url: str):
     result = {}
     result["tags"] = outputs
     result["score_final"] = score_final
-    #print(result)
+    print(result)
 
     return result
 
-#getAnalysis('https://cdn.bebememo.us/alijp/pictures/original/202405/537617569/09134e0efd0f400da4d43559ee0b9e03.jpg!large')
+getAnalysis('https://cdn.bebememo.us/alijp/pictures/original/202404/537617569/a717efb07f384e28a8d25606d572e0f3.jpg!large')
 
 app = FastAPI()
 
