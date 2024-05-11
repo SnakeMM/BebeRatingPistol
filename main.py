@@ -44,7 +44,7 @@ def getAnalysis(img_url: str):
     image = getImageByUrl(img_url)
 
     t2 = time.time()
-    print(f"下载时间: {round(t2 - t1, 2)} 秒")
+    print(f"下载时间: {round(t2 - t1, 6)} 秒")
 
     tags = [
         "a photo with no child at all",
@@ -63,7 +63,7 @@ def getAnalysis(img_url: str):
     outputs = getMaxProbTag(image, tags)
 
     t3 = time.time()
-    print(f"推理时间: {round(t3 - t2, 2)} 秒")
+    print(f"推理时间: {round(t3 - t2, 6)} 秒")
 
     sum_child = 0
     sum_face = 0
@@ -104,7 +104,7 @@ def getAnalysis(img_url: str):
     #print(result)
 
     t4 = time.time()
-    print(f"其他时间: {round(t4 - t3, 2)} 秒")
+    print(f"其他时间: {round(t4 - t3, 6)} 秒")
 
     return result
 
