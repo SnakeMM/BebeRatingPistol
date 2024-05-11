@@ -135,11 +135,14 @@ async def getTagsClip(
         data = response.json()
         list = data["list"]
         results = []
+        i = 0
         for item in list:
             result = {}
             result["url"] = item
             result["detail"] = getAnalysis(item)
             results.append(result)
+            i += 1
+            print(f"处理图片: {i} / {len(list)}")
 
         results = sorted(results, key=lambda k: k["detail"]["score_final"], reverse=True)
         return results
