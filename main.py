@@ -105,7 +105,7 @@ def getAnalysis(img_url: str):
 
     return result
 
-getAnalysis('https://cdn.bebememo.us/alijp/pictures/original/202307/537057801/ad527ed77c084ee29767ce48cd1058cb.jpg!large')
+getAnalysis('https://cdn.bebememo.us/alijp/pictures/original/202405/537057801/37dc60f3f81045639810017dd43c6b1f.jpg!large')
 
 app = FastAPI()
 
