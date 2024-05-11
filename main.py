@@ -78,11 +78,11 @@ def getAnalysis(img_url: str):
 
     for i, item in enumerate(outputs):
         if i < 5:
-            item["confidence"] = round(item["confidence"] / sum_child, 2)
+            item["confidence"] = round(item["confidence"] / sum_child, 3)
         elif i < 8:
-            item["confidence"] = round(item["confidence"] / sum_face, 2)
+            item["confidence"] = round(item["confidence"] / sum_face, 3)
         else:
-            item["confidence"] = round(item["confidence"] / sum_expression, 2)
+            item["confidence"] = round(item["confidence"] / sum_expression, 3)
     
     score_final = 0
     for i, item in enumerate(outputs):
