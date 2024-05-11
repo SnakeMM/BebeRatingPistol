@@ -54,7 +54,7 @@ def getAnalysis(img_url: str):
         "a photo with many children",
         "a photo with full front face",
         "a photo with side face",
-        "a photo with no face",
+        "a photo with obscured face",
         "a photo with smiling face",
         "a photo with crying face",
         "a photo with calming face"
@@ -105,7 +105,7 @@ def getAnalysis(img_url: str):
 
     return result
 
-getAnalysis('https://cdn.bebememo.us/alijp/pictures/original/202404/537617569/a717efb07f384e28a8d25606d572e0f3.jpg!large')
+getAnalysis('https://cdn.bebememo.us/alijp/pictures/original/202307/537057801/ad527ed77c084ee29767ce48cd1058cb.jpg!large')
 
 app = FastAPI()
 
