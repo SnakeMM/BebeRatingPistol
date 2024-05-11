@@ -87,15 +87,15 @@ def getAnalysis(img_url: str):
     score_final = 0
     for i, item in enumerate(outputs):
         if item["name"] == "only one child":
-            score_child = item["confidence"]
+            score_child = min(item["confidence"], 0.6)
             score_final += score_child
         if item["name"] == "full front face":
-            score_face = item["confidence"]
-            if score_child > 0.6:
+            score_face = min(item["confidence"], 0.6)
+            if score_child == 0.6:
                 score_final += score_face
         if item["name"] == "smiling face":
-            score_expression = item["confidence"]
-            if score_child > 0.6 and score_face > 0.6 :
+            score_expression = min(item["confidence"], 0.8)
+            if score_child == 0.6 and score_face == 0.6 :
                 score_final += score_expression
 
     result = {}
