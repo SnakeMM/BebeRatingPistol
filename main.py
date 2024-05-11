@@ -52,7 +52,7 @@ def getAnalysis(img_url: str):
         "a photo with two children",
         "a photo with three children",
         "a photo with many children",
-        "a photo with full front face",
+        "a photo with frontal face",
         "a photo with side face",
         "a photo with obscured face",
         "a photo with smiling face",
@@ -89,7 +89,7 @@ def getAnalysis(img_url: str):
         if item["name"] == "only one child":
             score_child = min(item["confidence"], 0.6)
             score_final += score_child
-        if item["name"] == "full front face":
+        if item["name"] == "frontal face":
             score_face = min(item["confidence"], 0.6)
             if score_child == 0.6:
                 score_final += score_face
