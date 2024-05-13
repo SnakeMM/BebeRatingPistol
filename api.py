@@ -50,7 +50,10 @@ def getMaxProbTag(image, input_tags):
     
     return results
 
-def getAnalysis(image):
+def getAnalysis(
+    image, 
+    show_tags: bool = False
+):
     outputs = getMaxProbTag(image, tags)
 
     sum_child = 0
@@ -87,8 +90,9 @@ def getAnalysis(image):
                 score_final += score_expression
 
     result = {}
-    result["score_final"] = score_final
-    result["tags"] = outputs
+    result["score"] = score_final
+    if show_tags:
+        result["tags"] = outputs
 
     return result
 
@@ -100,15 +104,32 @@ async def root():
 
 @app.get("/rate")
 async def getRating(
-    img_url: str
+    img_url: str,
+    show_tags: bool = False
 ):
     t1 = time.time()
-    image = getImageByUrl(img_url)
+    result = {}
+
+    try:
+        image = getImageByUrl(img_url)
+    except IOError as e:
+        print("下载异常:", e)
+        return {
+            "score" : 0,
+            "error" : "image download fail"
+        }
 
     t2 = time.time()
     print(f"下载时间: {round(t2 - t1, 3)} 秒")
 
-    result = getAnalysis(image)
+    try:
+        result = getAnalysis(image, show_tags)
+    except Exception as e:
+        print("推理异常:", e)
+        return {
+            "score" : 0,
+            "error" : "model inference fail"
+        }
 
     t3 = time.time()
     print(f"推理时间: {round(t3 - t2, 3)} 秒")
