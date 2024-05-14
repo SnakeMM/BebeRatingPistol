@@ -100,7 +100,7 @@ def getAnalysis(img_url: str):
 
     result = {}
     result["tags"] = outputs
-    result["score_final"] = score_final
+    result["score_final"] = round(score_final * 50, 1)
     print(result)
 
     return result
