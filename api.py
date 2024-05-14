@@ -90,7 +90,7 @@ def getAnalysis(
                 score_final += score_expression
 
     result = {}
-    result["score"] = score_final
+    result["score"] = round(score_final * 50, 1)
     if show_tags:
         result["tags"] = outputs
 
